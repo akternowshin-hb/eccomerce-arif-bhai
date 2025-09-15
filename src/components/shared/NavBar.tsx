@@ -144,13 +144,13 @@ const NavBar: React.FC = () => {
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50 transition-all duration-300">
       {/* Top Bar */}
-      <div className="bg-gray-50 text-gray-700 text-sm py-2">
+      {/* <div className="bg-gray-50 text-gray-700 text-sm py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-center items-center">
             <p className="animate-pulse">🚚 Free shipping on orders over $100 | ✨ 30-day returns</p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
