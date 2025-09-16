@@ -53,7 +53,7 @@ const Banner: React.FC = () => {
       description: "Discover our fresh summer collection with vibrant colors and comfortable fabrics perfect for the season.",
       buttonText: "Shop Collection",
       buttonLink: "/summer-collection",
-      image: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      image: "https://i.ibb.co.com/7JSC1519/Whats-App-Image-2025-09-16-at-12-37-18-308ac954.jpg",
       themeColor: "#ff6b6b",
       bgPattern: "dots"
     },
@@ -65,7 +65,7 @@ const Banner: React.FC = () => {
       description: "Elevate your wardrobe with our premium collection featuring high-quality materials and sophisticated designs.",
       buttonText: "Explore Premium",
       buttonLink: "/premium",
-      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&h=800&fit=crop",
+      image: "https://i.ibb.co.com/hJZjZkZL/Whats-App-Image-2025-09-16-at-12-38-05-b25082d8.jpg",
       themeColor: "#4ecdc4",
       bgPattern: "waves"
     },
@@ -77,10 +77,22 @@ const Banner: React.FC = () => {
       description: "Don't miss out! Huge discounts on thousands of items. Shop now before these amazing deals disappear.",
       buttonText: "Shop Sale",
       buttonLink: "/sale",
-      image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=1200&h=800&fit=crop",
+      image: "https://i.ibb.co.com/FLQx7R9R/lungi.jpg",
       themeColor: "#45b7d1",
       bgPattern: "geometric"
-    }
+    },
+    {
+      id: 4,
+      title: "PREMIUM STYLE",
+      subtitle: "Luxury Fashion",
+      offer: "EXCLUSIVE",
+      description: "Elevate your wardrobe with our premium collection featuring high-quality materials and sophisticated designs.",
+      buttonText: "Explore Premium",
+      buttonLink: "/premium",
+      image: "https://i.ibb.co.com/rRvDwb6Q/medium-shot-smiley-man-posing-wi.jpg",
+      themeColor: "#4ecdc4",
+      bgPattern: "waves"
+    },
   ]
 
   useEffect(() => {
@@ -270,100 +282,7 @@ const Banner: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right Side - Large Video Player - Visible on All Screens */}
-              <div className="flex justify-center md:justify-end order-first md:order-last">
-                <div 
-                  className="relative w-full max-w-sm md:max-w-lg h-64 md:h-80 lg:h-96 rounded-2xl md:rounded-3xl overflow-hidden cursor-pointer group shadow-2xl transition-all duration-500 hover:scale-105"
-                  onClick={openFullscreen}
-                  style={{
-                    boxShadow: `0 20px 60px ${currentSlideData.themeColor}30`,
-                    border: `2px md:border-3 solid ${currentSlideData.themeColor}40`
-                  }}
-                >
-                  <video
-                    ref={videoRef}
-                    src={videoUrl}
-                    className="w-full h-full object-cover"
-                    muted={isMuted}
-                    loop
-                    playsInline
-                    autoPlay
-                    poster="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&h=400&fit=crop"
-                  />
-                  
-                  {/* Video Overlay */}
-                  <div 
-                    className="absolute inset-0 transition-all duration-300"
-                    style={{
-                      background: `linear-gradient(45deg, ${currentSlideData.themeColor}15, transparent)`
-                    }}
-                  />
-                  
-                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/20 transition-all duration-300" />
-                  
-                  {/* Video Controls - Only show on hover/touch */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <div className="flex items-center space-x-3 md:space-x-4">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleVideoPlay()
-                        }}
-                        className="w-12 h-12 md:w-16 md:h-16 bg-white/30 backdrop-blur-lg rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all duration-300 transform hover:scale-110"
-                        style={{
-                          boxShadow: `0 8px 25px ${currentSlideData.themeColor}40`
-                        }}
-                      >
-                        {isVideoPlaying ? <Pause className="w-6 h-6 md:w-8 md:h-8" /> : <Play className="w-6 h-6 md:w-8 md:h-8 ml-1" />}
-                      </button>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleMute()
-                        }}
-                        className="w-10 h-10 md:w-12 md:h-12 bg-white/30 backdrop-blur-lg rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all duration-300"
-                      >
-                        {isMuted ? <VolumeX className="w-5 h-5 md:w-6 md:h-6" /> : <Volume2 className="w-5 h-5 md:w-6 md:h-6" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Fullscreen Icon */}
-                  <div className="absolute top-3 right-3 md:top-6 md:right-6 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                    <div 
-                      className="w-8 h-8 md:w-12 md:h-12 bg-white/30 backdrop-blur-lg rounded-full flex items-center justify-center text-white"
-                      style={{
-                        boxShadow: `0 5px 15px ${currentSlideData.themeColor}40`
-                      }}
-                    >
-                      <Maximize className="w-4 h-4 md:w-6 md:h-6" />
-                    </div>
-                  </div>
-
-                  {/* Video Label */}
-                  {/* <div className="absolute bottom-3 left-3 md:bottom-6 md:left-6">
-                    <div 
-                      className="px-3 py-2 md:px-6 md:py-3 rounded-full text-white text-sm md:text-lg font-bold backdrop-blur-lg"
-                      style={{ 
-                        backgroundColor: `${currentSlideData.themeColor}90`,
-                        boxShadow: `0 5px 20px ${currentSlideData.themeColor}40`
-                      }}
-                    >
-                      🎥 Collection Story
-                    </div>
-                  </div> */}
-
-                  {/* Decorative border animation */}
-                  <div 
-                    className="absolute inset-0 rounded-2xl md:rounded-3xl opacity-50"
-                    style={{
-                      background: `linear-gradient(45deg, transparent, ${currentSlideData.themeColor}40, transparent)`,
-                      animation: 'borderRotate 3s linear infinite'
-                    }}
-                  />
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -427,27 +346,6 @@ const Banner: React.FC = () => {
 
       </div>
 
-      {/* Fullscreen Video Modal */}
-      {isFullscreen && (
-        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
-          <video
-            ref={fullscreenVideoRef}
-            src={videoUrl}
-            className="w-full h-full object-contain"
-            controls
-            autoPlay
-            muted={isMuted}
-            loop
-          />
-          
-          <button
-            onClick={closeFullscreen}
-            className="absolute top-8 right-8 w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
-          >
-            <X className="w-8 h-8" />
-          </button>
-        </div>
-      )}
 
       {/* Custom Animations */}
       <style jsx>{`

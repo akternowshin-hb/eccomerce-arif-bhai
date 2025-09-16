@@ -49,45 +49,80 @@ const Category: React.FC = () => {
   const categories: CategoryItem[] = [
     {
       id: 1,
-      name: "Men's Fashion",
-      href: '/man',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
-      icon: <UserCheck className="w-8 h-8" />,
+      name: "Lungi Collection",
+      href: '/lungi',
+      image: 'https://i.ibb.co.com/FLQx7R9R/lungi.jpg',
+      icon: (
+        <img 
+          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png" 
+          alt="Lungi" 
+          className="w-8 h-8"
+          onError={(e) => {
+            // Fallback to text if image fails
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-blue-600">L</span></div>')
+          }}
+        />
+      ),
       color: '#3b82f6',
       hoverColor: '#1d4ed8',
-      description: 'Discover premium men\'s clothing with contemporary designs and exceptional quality.',
-      itemCount: 1250,
+      description: 'Traditional and modern lungis for comfort and style in everyday wear.',
+      itemCount: 850,
       isTrending: true
     },
     {
       id: 2,
-      name: "Women's Fashion",
-      href: '/woman',
-      image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=300&fit=crop',
-      icon: <Shirt className="w-8 h-8" />,
+      name: "Panjabi Collection",
+      href: '/panjabi',
+      image: 'https://i.ibb.co.com/ksN4ZNMM/medium-shot-man-looking-ukranian.jpg',
+      icon: (
+        <img 
+          src="
+https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
+          alt="Panjabi" 
+          className="w-8 h-8"
+          onError={(e) => {
+            // Fallback to text if image fails
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
+          }}
+        />
+      ),
       color: '#8b5cf6',
       hoverColor: '#7c3aed',
-      description: 'Embrace sophistication with our curated women\'s fashion line.',
-      itemCount: 2100,
+      description: 'Elegant panjabis perfect for religious occasions and cultural celebrations.',
+      itemCount: 950,
       isNew: true
     },
     {
       id: 3,
-      name: "Kids & Baby",
-      href: '/kids',
-      image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=400&h=300&fit=crop',
-      icon: <Baby className="w-8 h-8" />,
+      name: "Traditional Wear",
+      href: '/traditional',
+      image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=300&fit=crop',
+      icon: (
+        <img 
+          src="
+https://i.ibb.co.com/9k4BB7BX/saree.png" 
+          alt="Panjabi" 
+          className="w-8 h-8"
+          onError={(e) => {
+            // Fallback to text if image fails
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
+          }}
+        />
+      ),
       color: '#06b6d4',
       hoverColor: '#0891b2',
-      description: 'Adorable and comfortable clothing for your little ones.',
-      itemCount: 850,
-      discount: '30% OFF'
+      description: 'Complete collection of traditional Bengali and Islamic clothing.',
+      itemCount: 720,
+      discount: '25% OFF'
     },
     {
       id: 4,
       name: "Accessories & Others",
       href: '/others',
-      image: 'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400&h=300&fit=crop',
+      image: 'https://i.ibb.co.com/0p73F9N4/young-indian-woman-wearing-sari-1.jpg',
       icon: <Sparkles className="w-8 h-8" />,
       color: '#f59e0b',
       hoverColor: '#d97706',
@@ -124,27 +159,29 @@ const Category: React.FC = () => {
   ]
 
   const subCategories: { [key: string]: SubCategory[] } = {
-    "Men's Fashion": [
-      { name: 'Shirts', href: '/man/shirts', count: 320 },
-      { name: 'T-Shirts', href: '/man/tshirts', count: 280 },
-      { name: 'Pants', href: '/man/pants', count: 250 },
-      { name: 'Jeans', href: '/man/jeans', count: 180 },
-      { name: 'Jackets', href: '/man/jackets', count: 120 },
-      { name: 'Shoes', href: '/man/shoes', count: 100 }
+    "Lungi Collection": [
+      { name: 'Cotton Lungi', href: '/lungi/cotton', count: 280 },
+      { name: 'Silk Lungi', href: '/lungi/silk', count: 180 },
+      { name: 'Designer Lungi', href: '/lungi/designer', count: 150 },
+      { name: 'Casual Lungi', href: '/lungi/casual', count: 120 },
+      { name: 'Printed Lungi', href: '/lungi/printed', count: 90 },
+      { name: 'Checkered Lungi', href: '/lungi/checkered', count: 75 }
     ],
-    "Women's Fashion": [
-      { name: 'Dresses', href: '/woman/dresses', count: 450 },
-      { name: 'Tops & Blouses', href: '/woman/tops', count: 380 },
-      { name: 'Bottoms', href: '/woman/bottoms', count: 320 },
-      { name: 'Activewear', href: '/woman/activewear', count: 280 },
-      { name: 'Shoes', href: '/woman/shoes', count: 250 },
-      { name: 'Handbags', href: '/woman/handbags', count: 180 }
+    "Panjabi Collection": [
+      { name: 'Full Sleeve Panjabi', href: '/panjabi/full-sleeve', count: 320 },
+      { name: 'Half Sleeve Panjabi', href: '/panjabi/half-sleeve', count: 250 },
+      { name: 'Embroidered Panjabi', href: '/panjabi/embroidered', count: 180 },
+      { name: 'Cotton Panjabi', href: '/panjabi/cotton', count: 150 },
+      { name: 'Silk Panjabi', href: '/panjabi/silk', count: 120 },
+      { name: 'Formal Panjabi', href: '/panjabi/formal', count: 100 }
     ],
-    "Kids & Baby": [
-      { name: 'Boys (2-12)', href: '/kids/boys', count: 280 },
-      { name: 'Girls (2-12)', href: '/kids/girls', count: 290 },
-      { name: 'Baby (0-2)', href: '/kids/babies', count: 180 },
-      { name: 'School Uniforms', href: '/kids/uniforms', count: 100 }
+    "Traditional Wear": [
+      { name: 'Kurta', href: '/traditional/kurta', count: 200 },
+      { name: 'Dhoti', href: '/traditional/dhoti', count: 150 },
+      { name: 'Fatua', href: '/traditional/fatua', count: 120 },
+      { name: 'Pajama', href: '/traditional/pajama', count: 100 },
+      { name: 'Traditional Caps', href: '/traditional/caps', count: 80 },
+      { name: 'Prayer Outfit', href: '/traditional/prayer', count: 70 }
     ]
   }
 
@@ -169,7 +206,7 @@ const Category: React.FC = () => {
         {/* Search and Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
           {/* Search Bar */}
-          <div className="relative flex-1 max-w-md text-gray-600">
+          <div className="relative flex-1 max-w-md text-gray-700">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
@@ -230,7 +267,10 @@ const Category: React.FC = () => {
                 <img
                   src={category.image}
                   alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-125"
+                  style={{
+                    transformOrigin: 'center center'
+                  }}
                 />
                 
                 {/* Overlay */}
@@ -281,7 +321,7 @@ const Category: React.FC = () => {
                     {category.name}
                   </h3>
                   
-                  <p className="text-gray-600 mb-4 leading-relaxed h-14">
+                  <p className="text-gray-600 mb-4 leading-relaxed">
                     {category.description}
                   </p>
 

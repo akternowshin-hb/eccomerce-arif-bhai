@@ -35,48 +35,56 @@ const NavBar: React.FC = () => {
 
   const navItems: NavItem[] = [
     {
-      name: 'Man',
-      href: '/man',
-      icon: <UserCheck className="h-4 w-4" />,
+      name: 'Lungi',
+      href: '/Lungi',
+      icon: (
+        <img 
+          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png" 
+          alt="Lungi" 
+          className="w-4 h-4"
+          onError={(e) => {
+            // Fallback to text if image fails
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-blue-600">L</span></div>')
+          }}
+        />
+      ),
       color: '#3b82f6', // Blue
       hoverColor: '#1d4ed8', // Darker Blue
       hasDropdown: true,
       dropdownItems: [
-        { name: 'Shirts', href: '/man/shirts' },
-        { name: 'Pants', href: '/man/pants' },
-        { name: 'Jackets', href: '/man/jackets' },
-        { name: 'Shoes', href: '/man/shoes' },
-        { name: 'Accessories', href: '/man/accessories' },
+        { name: 'Print & Batik', href: '/men/shirts' },
+        { name: 'Solid', href: '/men/pants' },
+        { name: 'Stripe & Check', href: '/men/jackets' },
+        { name: 'Dobby & Jacquard', href: '/men/shoes' },
+        { name: 'Block Print', href: '/men/accessories' },
       ]
     },
     {
-      name: 'Woman',
-      href: '/woman',
-      icon: <Shirt className="h-4 w-4" />,
+      name: 'Panjabi',
+      href: '/panjabi',
+      icon: (
+        <img 
+          src="
+https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
+          alt="Panjabi" 
+          className="w-4 h-4"
+          onError={(e) => {
+            // Fallback to text if image fails
+            e.currentTarget.style.display = 'none'
+            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
+          }}
+        />
+      ),
       color: '#8b5cf6', // Purple
       hoverColor: '#7c3aed', // Darker Purple
       hasDropdown: true,
       dropdownItems: [
-        { name: 'Dresses', href: '/woman/dresses' },
-        { name: 'Tops', href: '/woman/tops' },
-        { name: 'Bottoms', href: '/woman/bottoms' },
-        { name: 'Shoes', href: '/woman/shoes' },
-        { name: 'Accessories', href: '/woman/accessories' },
-      ]
-    },
-    {
-      name: 'Kids',
-      href: '/kids',
-      icon: <Baby className="h-4 w-4" />,
-      color: '#06b6d4', // Cyan
-      hoverColor: '#0891b2', // Darker Cyan
-      hasDropdown: true,
-      dropdownItems: [
-        { name: 'Boys', href: '/kids/boys' },
-        { name: 'Girls', href: '/kids/girls' },
-        { name: 'Babies', href: '/kids/babies' },
-        { name: 'Shoes', href: '/kids/shoes' },
-        { name: 'Accessories', href: '/kids/accessories' },
+        { name: 'White Panjabi', href: '' },
+        { name: 'Turquoise', href: '' },
+        { name: 'Garnet', href: '' },
+        { name: 'Opal', href: '/' },
+        { name: 'Jasper', href: '/' },
       ]
     },
     {
