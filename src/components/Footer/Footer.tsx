@@ -156,7 +156,7 @@ const Footer: React.FC = () => {
                   className="text-4xl font-bold"
                   style={{ color: '#3b82f6' }}
                 >
-                  MIAH
+                  LungiLok
                 </Link>
                 <p className="text-gray-300 mt-3">
                   Find your next signature look.
@@ -174,7 +174,7 @@ const Footer: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-3 text-gray-300">
                   <Mail className="w-4 h-4" style={{ color: '#8b5cf6' }} />
-                  <span className="text-sm">info@miah.shop</span>
+                  <span className="text-sm">info@lungilok.shop</span>
                 </div>
               </div>
 
@@ -247,7 +247,7 @@ const Footer: React.FC = () => {
             
             {/* Copyright */}
             <div className="text-gray-400 text-sm text-center md:text-left">
-              <p>&copy; 2025 M/S Miah & Miah Enterprise. All rights reserved.</p>
+              <p>&copy; 2025 LungiLok Enterprise. All rights reserved.</p>
             </div>
 
             {/* Payment Methods */}

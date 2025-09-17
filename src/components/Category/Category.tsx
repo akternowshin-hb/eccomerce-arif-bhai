@@ -388,7 +388,7 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
         {/* Quick Stats */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Why Shop with <span style={{ color: '#3b82f6' }}>MIAH</span>?
+            Why Shop with <span style={{ color: '#3b82f6' }}>LungiLok</span>?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">

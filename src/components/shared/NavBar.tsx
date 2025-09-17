@@ -179,7 +179,7 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
                 e.currentTarget.style.color = '#1e40af'
               }}
             >
-              MIAH
+              LungiLok
             </Link>
           </div>
 
