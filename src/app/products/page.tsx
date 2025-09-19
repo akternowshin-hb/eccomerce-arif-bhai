@@ -1,10 +1,15 @@
-import ProductListing from '../../components/productListing/ProductListing'
+"use client";
+
+import { Suspense } from "react";
+import ProductListing from "../../components/productListing/ProductListing";
 
 export default function ProductsPage() {
-  console.log('ProductsPage is rendering')
+  console.log("ProductsPage is rendering");
   return (
-    <div>
-      <ProductListing />
-    </div>
-  )
+    <Suspense fallback={<div>Loading products...</div>}>
+      <div>
+        <ProductListing />
+      </div>
+    </Suspense>
+  );
 }
