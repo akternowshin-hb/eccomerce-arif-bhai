@@ -324,7 +324,9 @@ const ProductListing: React.FC = () => {
     }
 
     if (filters.brands.length > 0) {
-      filtered = filtered.filter(product => filters.brands.includes(product.brand || ''))
+      filtered = filtered.filter(product => 
+        product.brand && filters.brands.includes(product.brand)
+      )
     }
 
     if (filters.freeShipping) {
@@ -375,7 +377,12 @@ const ProductListing: React.FC = () => {
     return titles[category] || 'Products'
   }
 
-  const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))]
+  // Fix: Filter out undefined brands and ensure we only work with strings
+  const uniqueBrands = [...new Set(
+    products
+      .map(p => p.brand)
+      .filter((brand): brand is string => brand !== undefined && brand !== null)
+  )]
 
   if (loading) {
     return (
