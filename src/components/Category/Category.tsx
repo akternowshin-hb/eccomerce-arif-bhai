@@ -338,7 +338,7 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
 
                 {/* Action Button */}
                 <Link
-                  href={category.href}
+                  href={`/products?category=${category.href.substring(1)}`}
                   className={`inline-flex items-center px-6 py-3 rounded-full font-semibold transition-all duration-300 transform group-hover:scale-105 ${
                     viewMode === 'list' ? 'ml-6' : 'w-full justify-center'
                   }`}
@@ -363,24 +363,7 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
                 </Link>
               </div>
 
-              {/* Subcategories Preview */}
-              {selectedCategory === category.name && subCategories[category.name] && viewMode === 'grid' && (
-                <div className="absolute inset-x-0 bottom-0 bg-white/95 backdrop-blur-sm p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <h4 className="font-semibold text-gray-800 mb-2">Quick Links:</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {subCategories[category.name].slice(0, 4).map((sub, index) => (
-                      <Link
-                        key={index}
-                        href={sub.href}
-                        className="text-sm text-gray-600 hover:text-blue-600 transition-colors duration-300 flex items-center justify-between"
-                      >
-                        <span>{sub.name}</span>
-                        <span className="text-xs text-gray-400">({sub.count})</span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
+              
             </div>
           ))}
         </div>
