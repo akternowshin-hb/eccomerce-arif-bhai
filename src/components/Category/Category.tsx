@@ -60,10 +60,12 @@ const Category: React.FC = () => {
           counts[category] = data.products?.length || 0
         }
 
-        // Fetch sale products count
-        const saleResponse = await fetch(`/api/products`)
-        const saleData = await saleResponse.json()
-        const saleCount = saleData.products?.filter((p: any) => p.originalPrice && p.originalPrice > p.price).length || 0
+        // Fetch sale products count - only count products with discount
+        const allResponse = await fetch(`/api/products`)
+        const allData = await allResponse.json()
+        const saleCount = allData.products?.filter((p: any) =>
+          p.originalPrice && p.originalPrice > p.price
+        ).length || 0
         counts['sale'] = saleCount
 
         setProductCounts(counts)

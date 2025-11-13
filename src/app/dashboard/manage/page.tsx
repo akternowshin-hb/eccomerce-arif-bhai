@@ -596,6 +596,48 @@ const ManageProductsPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Rating & Reviews */}
+          <div className="space-y-4 border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-900">Rating & Reviews</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rating (0-5)
+                </label>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  name="rating"
+                  value={formData.rating || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 4.5"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                />
+                <p className="text-xs text-gray-500 mt-1">Enter a rating between 0 and 5</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Number of Reviews
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  name="numReviews"
+                  value={formData.numReviews || ''}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., 125"
+                />
+                <p className="text-xs text-gray-500 mt-1">Total number of customer reviews</p>
+              </div>
+            </div>
+          </div>
+
           {/* Images */}
           <div className="space-y-4 border-t pt-6">
             <h3 className="text-lg font-semibold text-gray-900">Product Images *</h3>

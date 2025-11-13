@@ -419,10 +419,10 @@ const ProductDetails: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-900">Size: {selectedSize}</h3>
-                  <button className="text-blue-600 text-sm hover:underline flex items-center">
+                  <Link href="/size-guide" target="_blank" className="text-blue-600 text-sm hover:underline flex items-center">
                     <Info className="w-3 h-3 mr-1" />
                     Size Guide
-                  </button>
+                  </Link>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
@@ -576,16 +576,28 @@ const ProductDetails: React.FC = () => {
                         <span>{product.fit}</span>
                       </div>
                     )}
-                    {product.category && (
+                    {product.material && (
                       <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Category:</span>
-                        <span className="capitalize">{product.category}</span>
+                        <span className="font-medium">Material:</span>
+                        <span>{product.material}</span>
                       </div>
                     )}
-                    {product.subcategory && (
+                    {product.weight && (
                       <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Subcategory:</span>
-                        <span>{product.subcategory}</span>
+                        <span className="font-medium">Weight:</span>
+                        <span>{product.weight}</span>
+                      </div>
+                    )}
+                    {product.care && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Care Instructions:</span>
+                        <span>{product.care}</span>
+                      </div>
+                    )}
+                    {product.fit && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Fit:</span>
+                        <span>{product.fit}</span>
                       </div>
                     )}
                   </div>
