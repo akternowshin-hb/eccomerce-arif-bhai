@@ -31,7 +31,7 @@ const ProductSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, 'Product category is required'],
-      enum: ['lungi', 'panjabi', 'traditional', 'others'],
+      enum: ['lungi', 'panjabi', 'others'],
       lowercase: true
     },
     subcategory: {
@@ -77,6 +77,22 @@ const ProductSchema = new mongoose.Schema(
     colors: [String],
     materials: [String],
     tags: [String],
+    material: {
+      type: String,
+      trim: true
+    },
+    weight: {
+      type: String,
+      trim: true
+    },
+    care: {
+      type: String,
+      trim: true
+    },
+    fit: {
+      type: String,
+      trim: true
+    },
     rating: {
       type: Number,
       min: 0,

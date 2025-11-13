@@ -2,18 +2,20 @@
 
 import React, { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  Search, 
-  User, 
-  Heart, 
-  ShoppingCart, 
-  Menu, 
-  X, 
+import {
+  Search,
+  User,
+  Heart,
+  ShoppingCart,
+  Menu,
+  X,
   ChevronDown,
   LogOut,
   UserCircle
 } from 'lucide-react'
 import { useAuth } from '../Provider/Authcontext'
+import { useCart } from '../Provider/CartContext'
+import { useFavorites } from '../Provider/FavoritesContext'
 
 interface NavItem {
   name: string
@@ -27,6 +29,8 @@ interface NavItem {
 
 const NavBar: React.FC = () => {
   const { user, logout } = useAuth()
+  const { getCartCount } = useCart()
+  const { getFavoritesCount } = useFavorites()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -37,11 +41,11 @@ const NavBar: React.FC = () => {
   const navItems: NavItem[] = [
     {
       name: 'Lungi',
-      href: '/Lungi',
+      href: '/products?category=lungi',
       icon: (
-        <img 
-          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png" 
-          alt="Lungi" 
+        <img
+          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png"
+          alt="Lungi"
           className="w-4 h-4"
         />
       ),
@@ -50,11 +54,11 @@ const NavBar: React.FC = () => {
     },
     {
       name: 'Panjabi',
-      href: '/panjabi',
+      href: '/products?category=panjabi',
       icon: (
-        <img 
-          src="https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
-          alt="Panjabi" 
+        <img
+          src="https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
+          alt="Panjabi"
           className="w-4 h-4"
         />
       ),
@@ -63,14 +67,14 @@ const NavBar: React.FC = () => {
     },
     {
       name: 'Others',
-      href: '/others',
+      href: '/products?category=others',
       icon: <span className="h-4 w-4">✨</span>,
       color: '#f59e0b',
       hoverColor: '#d97706',
     },
     {
       name: 'Sale',
-      href: '/sale',
+      href: '/products?onSale=true',
       icon: <span className="h-4 w-4">🏷️</span>,
       color: '#ef4444',
       hoverColor: '#dc2626',
@@ -305,9 +309,11 @@ const NavBar: React.FC = () => {
               className="p-2 rounded-full text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 relative"
             >
               <Heart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                3
-              </span>
+              {getFavoritesCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {getFavoritesCount()}
+                </span>
+              )}
             </Link>
 
             {/* Cart */}
@@ -316,9 +322,11 @@ const NavBar: React.FC = () => {
               className="p-2 rounded-full text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-300 relative"
             >
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                2
-              </span>
+              {getCartCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {getCartCount()}
+                </span>
+              )}
             </Link>
           </div>
 
@@ -338,9 +346,11 @@ const NavBar: React.FC = () => {
             </Link>
             <Link href="/cart" className="p-2 text-green-600 relative">
               <ShoppingCart className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                2
-              </span>
+              {getCartCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                  {getCartCount()}
+                </span>
+              )}
             </Link>
             
             <button

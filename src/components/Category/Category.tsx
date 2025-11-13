@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { 
-  UserCheck, 
-  Shirt, 
-  Baby, 
-  Sparkles, 
-  Tag, 
-  ArrowRight, 
+import {
+  UserCheck,
+  Shirt,
+  Baby,
+  Sparkles,
+  Tag,
+  ArrowRight,
   TrendingUp,
   Heart,
   Star,
@@ -45,6 +45,35 @@ const Category: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [productCounts, setProductCounts] = useState<{[key: string]: number}>({})
+
+  // Fetch product counts for each category
+  useEffect(() => {
+    const fetchProductCounts = async () => {
+      try {
+        const categories = ['lungi', 'panjabi', 'others']
+        const counts: {[key: string]: number} = {}
+
+        for (const category of categories) {
+          const response = await fetch(`/api/products?category=${category}`)
+          const data = await response.json()
+          counts[category] = data.products?.length || 0
+        }
+
+        // Fetch sale products count
+        const saleResponse = await fetch(`/api/products`)
+        const saleData = await saleResponse.json()
+        const saleCount = saleData.products?.filter((p: any) => p.originalPrice && p.originalPrice > p.price).length || 0
+        counts['sale'] = saleCount
+
+        setProductCounts(counts)
+      } catch (error) {
+        console.error('Error fetching product counts:', error)
+      }
+    }
+
+    fetchProductCounts()
+  }, [])
 
   const categories: CategoryItem[] = [
     {
@@ -53,21 +82,19 @@ const Category: React.FC = () => {
       href: '/lungi',
       image: 'https://i.ibb.co.com/FLQx7R9R/lungi.jpg',
       icon: (
-        <img 
-          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png" 
-          alt="Lungi" 
+        <img
+          src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png"
+          alt="Lungi"
           className="w-8 h-8"
           onError={(e) => {
-            // Fallback to text if image fails
             e.currentTarget.style.display = 'none'
-            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-blue-600">L</span></div>')
           }}
         />
       ),
       color: '#3b82f6',
       hoverColor: '#1d4ed8',
       description: 'Traditional and modern lungis for comfort and style in everyday wear.',
-      itemCount: 850,
+      itemCount: productCounts['lungi'] || 0,
       isTrending: true
     },
     {
@@ -76,62 +103,35 @@ const Category: React.FC = () => {
       href: '/panjabi',
       image: 'https://i.ibb.co.com/ksN4ZNMM/medium-shot-man-looking-ukranian.jpg',
       icon: (
-        <img 
-          src="
-https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
-          alt="Panjabi" 
+        <img
+          src="https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
+          alt="Panjabi"
           className="w-8 h-8"
           onError={(e) => {
-            // Fallback to text if image fails
             e.currentTarget.style.display = 'none'
-            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
           }}
         />
       ),
       color: '#8b5cf6',
       hoverColor: '#7c3aed',
       description: 'Elegant panjabis perfect for religious occasions and cultural celebrations.',
-      itemCount: 950,
+      itemCount: productCounts['panjabi'] || 0,
       isNew: true
     },
-//     {
-//       id: 3,
-//       name: "Traditional Wear",
-//       href: '/traditional',
-//       image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=300&fit=crop',
-//       icon: (
-//         <img 
-//           src="
-// https://i.ibb.co.com/9k4BB7BX/saree.png" 
-//           alt="Panjabi" 
-//           className="w-8 h-8"
-//           onError={(e) => {
-//             // Fallback to text if image fails
-//             e.currentTarget.style.display = 'none'
-//             e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
-//           }}
-//         />
-//       ),
-//       color: '#06b6d4',
-//       hoverColor: '#0891b2',
-//       description: 'Complete collection of traditional Bengali and Islamic clothing.',
-//       itemCount: 720,
-//       discount: '25% OFF'
-//     },
     // {
-    //   id: 4,
-    //   name: "Accessories & Others",
+    //   id: 3,
+    //   name: "Others",
     //   href: '/others',
     //   image: 'https://i.ibb.co.com/0p73F9N4/young-indian-woman-wearing-sari-1.jpg',
     //   icon: <Sparkles className="w-8 h-8" />,
     //   color: '#f59e0b',
     //   hoverColor: '#d97706',
     //   description: 'Complete your look with our premium accessories collection.',
-    //   itemCount: 650,
+    //   itemCount: productCounts['others'] || 0,
     //   isTrending: true
     // },
     {
-      id: 5,
+      id: 3,
       name: "Sale & Offers",
       href: '/sale',
       image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=400&h=300&fit=crop',
@@ -139,23 +139,10 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
       color: '#ef4444',
       hoverColor: '#dc2626',
       description: 'Amazing deals and discounts on selected items.',
-      itemCount: 420,
+      itemCount: productCounts['sale'] || 0,
       discount: 'UP TO 70%',
       isNew: true
-    },
-    // {
-    //   id: 6,
-    //   name: "New Arrivals",
-    //   href: '/new-arrivals',
-    //   image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop',
-    //   icon: <TrendingUp className="w-8 h-8" />,
-    //   color: '#10b981',
-    //   hoverColor: '#059669',
-    //   description: 'Latest fashion trends and newest collections.',
-    //   itemCount: 320,
-    //   isNew: true,
-    //   isTrending: true
-    // }
+    }
   ]
 
   const subCategories: { [key: string]: SubCategory[] } = {

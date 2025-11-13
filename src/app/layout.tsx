@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/components/Provider/Authcontext";
+import { CartProvider } from "@/components/Provider/CartContext";
+import { FavoritesProvider } from "@/components/Provider/FavoritesContext";
 import ConditionalLayout from "@/components/ConditionalLayout";
 
 
@@ -36,7 +38,11 @@ export default function RootLayout({
         suppressHydrationWarning={true}
       >
         <AuthProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
+          <FavoritesProvider>
+            <CartProvider>
+              <ConditionalLayout>{children}</ConditionalLayout>
+            </CartProvider>
+          </FavoritesProvider>
         </AuthProvider>
       </body>
     </html>

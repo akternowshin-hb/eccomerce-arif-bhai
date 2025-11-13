@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
+import {
   ArrowLeft,
   Heart,
   Star,
@@ -15,33 +15,79 @@ import {
   ChevronRight,
   Plus,
   Minus,
-  Info
+  Info,
+  Loader2
 } from 'lucide-react'
+import { useCart } from '../Provider/CartContext'
 
-interface ProductImage {
-  id: number
-  url: string
-  alt: string
+// Color name to hex mapping
+const COLOR_MAP: { [key: string]: string } = {
+  // Basic colors
+  'red': '#EF4444',
+  'blue': '#3B82F6',
+  'green': '#10B981',
+  'yellow': '#F59E0B',
+  'black': '#000000',
+  'white': '#FFFFFF',
+  'pink': '#EC4899',
+  'purple': '#A855F7',
+  'orange': '#F97316',
+  'brown': '#92400E',
+  'gray': '#6B7280',
+  'grey': '#6B7280',
+  'navy': '#1E3A8A',
+  'maroon': '#7F1D1D',
+  'teal': '#14B8A6',
+  'olive': '#84CC16',
+  'lime': '#84CC16',
+  'cyan': '#06B6D4',
+  'magenta': '#D946EF',
+  'crimson': '#DC2626',
+  'beige': '#D4A373',
+  'cream': '#FFFDD0',
+  'gold': '#FFD700',
+  'silver': '#C0C0C0',
+  'khaki': '#C3B091'
 }
 
-interface ProductVariant {
-  id: number
-  color: string
-  colorCode: string
+const getColorHex = (colorName: string): string => {
+  const normalized = colorName.toLowerCase().trim()
+  return COLOR_MAP[normalized] || '#9CA3AF' // Default to gray if color not found
+}
+
+interface Product {
+  _id: string
   name: string
-  images: ProductImage[]
-}
-
-interface SizeOption {
-  size: string
-  available: boolean
-  stock?: number
+  description: string
+  price: number
+  originalPrice?: number
+  discount?: number
+  category: string
+  subcategory?: string
+  brand?: string
+  stock: number
+  inStock: boolean
+  images: string[]
+  sizes: string[]
+  colors: string[]
+  material?: string
+  weight?: string
+  care?: string
+  fit?: string
+  rating?: number
+  numReviews?: number
+  featured?: boolean
+  isNew?: boolean
+  isBestseller?: boolean
 }
 
 const ProductDetails: React.FC = () => {
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  const [selectedVariant, setSelectedVariant] = useState(0)
-  const [selectedSize, setSelectedSize] = useState('XL')
+  const [selectedColor, setSelectedColor] = useState('')
+  const [selectedSize, setSelectedSize] = useState('')
   const [quantity, setQuantity] = useState(1)
   const [isFavorite, setIsFavorite] = useState(false)
   const [activeTab, setActiveTab] = useState('description')
@@ -51,70 +97,85 @@ const ProductDetails: React.FC = () => {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
+  const { addToCart } = useCart()
 
-  const productVariants: ProductVariant[] = [
-    {
-      id: 1,
-      color: 'White',
-      colorCode: '#ffffff',
-      name: 'Classic White',
-      images: [
-        { id: 1, url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&h=800&fit=crop', alt: 'White Dobby Shirt Front' },
-        { id: 2, url: 'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=600&h=800&fit=crop', alt: 'White Dobby Shirt Back' },
-        { id: 3, url: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=800&fit=crop', alt: 'White Dobby Shirt Side' }
-      ]
-    },
-    {
-      id: 2,
-      color: 'Light Blue',
-      colorCode: '#87ceeb',
-      name: 'Sky Blue',
-      images: [
-        { id: 5, url: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&h=800&fit=crop', alt: 'Blue Dobby Shirt Front' },
-        { id: 6, url: 'https://images.unsplash.com/photo-1603252109303-2751441dd157?w=600&h=800&fit=crop', alt: 'Blue Dobby Shirt Back' }
-      ]
-    },
-    {
-      id: 3,
-      color: 'Gray',
-      colorCode: '#808080',
-      name: 'Classic Gray',
-      images: [
-        { id: 8, url: 'https://images.unsplash.com/photo-1598033129183-c4f50c736f10?w=600&h=800&fit=crop', alt: 'Gray Dobby Shirt Front' },
-        { id: 9, url: 'https://images.unsplash.com/photo-1594938395241-7d4ac882b4c8?w=600&h=800&fit=crop', alt: 'Gray Dobby Shirt Back' }
-      ]
+  // Fetch product data
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch(`/api/products/${productId}`)
+
+        if (!response.ok) {
+          throw new Error('Product not found')
+        }
+
+        const data = await response.json()
+
+        if (data.success && data.product) {
+          setProduct(data.product)
+          // Set default selections
+          if (data.product.colors && data.product.colors.length > 0) {
+            setSelectedColor(data.product.colors[0])
+          }
+          if (data.product.sizes && data.product.sizes.length > 0) {
+            setSelectedSize(data.product.sizes[0])
+          }
+        } else {
+          throw new Error(data.message || 'Failed to fetch product')
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load product')
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
 
-  const sizeOptions: SizeOption[] = [
-    { size: 'S', available: true, stock: 5 },
-    { size: 'M', available: true, stock: 12 },
-    { size: 'L', available: true, stock: 8 },
-    { size: 'XL', available: true, stock: 15 },
-    { size: '2XL', available: true, stock: 3 },
-    { size: '3XL', available: false, stock: 0 }
-  ]
-
-  const currentVariant = productVariants[selectedVariant]
-  const currentImages = currentVariant.images
+    if (productId) {
+      fetchProduct()
+    }
+  }, [productId])
 
   const handleQuantityChange = (change: number) => {
     const newQuantity = quantity + change
-    if (newQuantity >= 1 && newQuantity <= 10) {
+    if (newQuantity >= 1 && newQuantity <= (product?.stock || 10)) {
       setQuantity(newQuantity)
     }
   }
 
-  const nextImage = () => {
-    setSelectedImageIndex((prev) => 
-      prev === currentImages.length - 1 ? 0 : prev + 1
+  const handleAddToCart = () => {
+    if (!product) return
+
+    addToCart(
+      {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        size: selectedSize,
+        color: selectedColor,
+        stock: product.stock
+      },
+      quantity
     )
+
+    alert('Product added to cart!')
+  }
+
+  const nextImage = () => {
+    if (product) {
+      setSelectedImageIndex((prev) =>
+        prev === product.images.length - 1 ? 0 : prev + 1
+      )
+    }
   }
 
   const prevImage = () => {
-    setSelectedImageIndex((prev) => 
-      prev === 0 ? currentImages.length - 1 : prev - 1
-    )
+    if (product) {
+      setSelectedImageIndex((prev) =>
+        prev === 0 ? product.images.length - 1 : prev - 1
+      )
+    }
   }
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -135,13 +196,47 @@ const ProductDetails: React.FC = () => {
     setIsZooming(false)
   }
 
+  // Calculate discount percentage
+  const discountPercentage = product?.originalPrice && product?.price
+    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+    : 0
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading product details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <div className="bg-white min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 text-lg mb-4">{error || 'Product not found'}</p>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white min-h-screen text-blue-500">
       {/* Minimal Header */}
       <div className="border-b sticky top-0 z-40 bg-white">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center justify-between py-3">
-            <button 
+            <button
               onClick={() => router.back()}
               className="flex items-center text-gray-600 hover:text-black transition-colors cursor-pointer"
             >
@@ -162,12 +257,12 @@ const ProductDetails: React.FC = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          
+
           {/* Product Images - Enhanced */}
           <div className="space-y-3">
             {/* Main Image with 3x Zoom */}
             <div className="relative bg-gray-50 rounded-lg overflow-hidden">
-              <div 
+              <div
                 ref={imageRef}
                 className="relative aspect-square cursor-zoom-in"
                 onMouseMove={handleMouseMove}
@@ -175,8 +270,8 @@ const ProductDetails: React.FC = () => {
                 onMouseLeave={handleMouseLeave}
               >
                 <img
-                  src={currentImages[selectedImageIndex]?.url}
-                  alt={currentImages[selectedImageIndex]?.alt}
+                  src={product.images[selectedImageIndex]}
+                  alt={product.name}
                   className={`w-full h-full object-cover transition-transform duration-200 ${
                     isZooming ? 'scale-300' : 'scale-100'
                   }`}
@@ -184,9 +279,9 @@ const ProductDetails: React.FC = () => {
                     transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`
                   } : {}}
                 />
-                
+
                 {/* Simple Navigation */}
-                {currentImages.length > 1 && !isZooming && (
+                {product.images.length > 1 && !isZooming && (
                   <>
                     <button
                       onClick={prevImage}
@@ -205,7 +300,7 @@ const ProductDetails: React.FC = () => {
 
                 {/* Image Counter */}
                 <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                  {selectedImageIndex + 1}/{currentImages.length}
+                  {selectedImageIndex + 1}/{product.images.length}
                 </div>
 
                 {/* Zoom Hint */}
@@ -218,25 +313,27 @@ const ProductDetails: React.FC = () => {
             </div>
 
             {/* Thumbnails */}
-            <div className="flex space-x-2">
-              {currentImages.map((image, index) => (
-                <button
-                  key={image.id}
-                  onClick={() => setSelectedImageIndex(index)}
-                  className={`w-14 h-14 rounded overflow-hidden border-2 transition-all ${
-                    selectedImageIndex === index
-                      ? 'border-black'
-                      : 'border-gray-200 hover:border-gray-400'
-                  }`}
-                >
-                  <img
-                    src={image.url}
-                    alt={image.alt}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            {product.images.length > 1 && (
+              <div className="flex space-x-2 overflow-x-auto">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImageIndex(index)}
+                    className={`flex-shrink-0 w-14 h-14 rounded overflow-hidden border-2 transition-all ${
+                      selectedImageIndex === index
+                        ? 'border-black'
+                        : 'border-gray-200 hover:border-gray-400'
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Product Info - Simplified */}
@@ -244,86 +341,106 @@ const ProductDetails: React.FC = () => {
             {/* Title */}
             <div>
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-                Premium Dobby Shirt
+                {product.name}
               </h1>
+              {product.brand && (
+                <p className="text-sm text-gray-600 mb-2">Brand: {product.brand}</p>
+              )}
               <div className="flex items-center space-x-2 text-sm">
                 <div className="flex items-center">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
                       className={`w-4 h-4 ${
-                        star <= 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                        star <= (product.rating || 0) ? 'text-yellow-400 fill-current' : 'text-gray-300'
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-gray-600">4.8 • 127 reviews</span>
+                <span className="text-gray-600">
+                  {product.rating?.toFixed(1) || '0.0'} • {product.numReviews || 0} reviews
+                </span>
               </div>
             </div>
 
             {/* Price */}
             <div className="py-4 px-4 bg-gray-50 rounded-lg">
               <div className="flex items-baseline space-x-2">
-                <span className="text-2xl font-bold">৳5,800</span>
-                <span className="text-lg text-gray-500 line-through">৳7,200</span>
-                <span className="bg-red-600 text-white px-2 py-0.5 rounded text-sm font-medium">
-                  19% OFF
-                </span>
+                <span className="text-2xl font-bold">৳{product.price.toLocaleString()}</span>
+                {product.originalPrice && product.originalPrice > product.price && (
+                  <>
+                    <span className="text-lg text-gray-500 line-through">
+                      ৳{product.originalPrice.toLocaleString()}
+                    </span>
+                    <span className="bg-red-600 text-white px-2 py-0.5 rounded text-sm font-medium">
+                      {discountPercentage}% OFF
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
             {/* Color */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-900 mb-2">
-                Color: {currentVariant.name}
-              </h3>
-              <div className="flex space-x-2">
-                {productVariants.map((variant, index) => (
-                  <button
-                    key={variant.id}
-                    onClick={() => {
-                      setSelectedVariant(index)
-                      setSelectedImageIndex(0)
-                    }}
-                    className={`w-8 h-8 rounded-full border-2 transition-all ${
-                      selectedVariant === index
-                        ? 'border-black'
-                        : 'border-gray-300'
-                    }`}
-                    style={{ backgroundColor: variant.colorCode }}
-                  />
-                ))}
+            {product.colors && product.colors.length > 0 && (
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">
+                  Color: {selectedColor}
+                </h3>
+                <div className="flex flex-wrap gap-3">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`relative flex items-center gap-2 transition-all ${
+                        selectedColor === color
+                          ? 'ring-2 ring-black ring-offset-2'
+                          : ''
+                      }`}
+                      title={color}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-full border-2 transition-all ${
+                          selectedColor === color
+                            ? 'border-black scale-110'
+                            : 'border-gray-300 hover:border-gray-400'
+                        } ${color.toLowerCase() === 'white' ? 'border-gray-400' : ''}`}
+                        style={{
+                          backgroundColor: getColorHex(color)
+                        }}
+                      />
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Size */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-900">Size: {selectedSize}</h3>
-                <button className="text-blue-600 text-sm hover:underline flex items-center">
-                  <Info className="w-3 h-3 mr-1" />
-                  Size Guide
-                </button>
-              </div>
-              <div className="flex space-x-2">
-                {sizeOptions.map((option) => (
-                  <button
-                    key={option.size}
-                    onClick={() => option.available && setSelectedSize(option.size)}
-                    disabled={!option.available}
-                    className={`px-3 py-2 text-sm rounded border transition-all ${
-                      selectedSize === option.size
-                        ? 'border-black bg-black text-white'
-                        : option.available
-                        ? 'border-gray-300 hover:border-gray-400'
-                        : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {option.size}
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-gray-900">Size: {selectedSize}</h3>
+                  <button className="text-blue-600 text-sm hover:underline flex items-center">
+                    <Info className="w-3 h-3 mr-1" />
+                    Size Guide
                   </button>
-                ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-3 py-2 text-sm rounded border transition-all ${
+                        selectedSize === size
+                          ? 'border-black bg-black text-white'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Quantity */}
             <div>
@@ -340,27 +457,34 @@ const ProductDetails: React.FC = () => {
                   <span className="px-3 py-2 border-x">{quantity}</span>
                   <button
                     onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= 10}
+                    disabled={quantity >= product.stock}
                     className="p-2 hover:bg-gray-100 disabled:opacity-50"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
                 </div>
                 <span className="text-sm text-gray-600">
-                  {sizeOptions.find(s => s.size === selectedSize)?.stock} available
+                  {product.stock} available
                 </span>
               </div>
             </div>
 
             {/* Actions */}
             <div className="space-y-3 pt-2">
-              <button className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors">
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-black text-white py-3 rounded font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+                disabled={!product.inStock}
+              >
                 <ShoppingCart className="w-4 h-4 inline mr-2" />
-                Add to Cart
+                {product.inStock ? 'Add to Cart' : 'Out of Stock'}
               </button>
-              
+
               <div className="grid grid-cols-2 gap-2">
-                <button className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors">
+                <button
+                  className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                  disabled={!product.inStock}
+                >
                   Buy Now
                 </button>
                 <button className="border border-gray-300 py-2.5 rounded font-medium hover:bg-gray-50 transition-colors">
@@ -375,12 +499,12 @@ const ProductDetails: React.FC = () => {
                 <Truck className="w-5 h-5 text-green-600 mx-auto mb-1" />
                 <p className="text-xs font-medium">Free Shipping</p>
               </div>
-              
+
               <div className="text-center py-3 bg-blue-50 rounded">
                 <RotateCcw className="w-5 h-5 text-blue-600 mx-auto mb-1" />
                 <p className="text-xs font-medium">Easy Returns</p>
               </div>
-              
+
               <div className="text-center py-3 bg-purple-50 rounded">
                 <Shield className="w-5 h-5 text-purple-600 mx-auto mb-1" />
                 <p className="text-xs font-medium">Quality Assured</p>
@@ -417,53 +541,53 @@ const ProductDetails: React.FC = () => {
           <div className="p-4">
             {activeTab === 'description' && (
               <div className="space-y-3">
-                <p className="text-gray-700">
-                  Experience comfort and style with our Premium Dobby Shirt. Crafted from high-quality dobby fabric, 
-                  this shirt offers exceptional breathability and durability.
+                <p className="text-gray-700 whitespace-pre-line">
+                  {product.description}
                 </p>
-                <ul className="space-y-1 text-sm text-gray-600">
-                  <li>• Premium dobby fabric with superior breathability</li>
-                  <li>• Easy care - wrinkle resistant and machine washable</li>
-                  <li>• Classic fit with modern styling</li>
-                  <li>• Pre-shrunk for lasting fit</li>
-                </ul>
               </div>
             )}
 
             {activeTab === 'specifications' && (
-              <div className="grid grid-cols-2 gap-6 text-sm">
+              <div className="space-y-4 text-sm">
                 <div>
-                  <h4 className="font-medium mb-2">Fabric</h4>
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Material:</span>
-                      <span>100% Cotton</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Weight:</span>
-                      <span>140 GSM</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Care:</span>
-                      <span>Machine Wash</span>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">Details</h4>
-                  <div className="space-y-1 text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Fit:</span>
-                      <span>Regular</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Collar:</span>
-                      <span>Spread</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Sleeve:</span>
-                      <span>Full</span>
-                    </div>
+                  <h4 className="font-medium mb-3 text-gray-900">Details</h4>
+                  <div className="space-y-2 text-gray-600">
+                    {product.material && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Material:</span>
+                        <span>{product.material}</span>
+                      </div>
+                    )}
+                    {product.weight && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Weight:</span>
+                        <span>{product.weight}</span>
+                      </div>
+                    )}
+                    {product.care && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Care:</span>
+                        <span>{product.care}</span>
+                      </div>
+                    )}
+                    {product.fit && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Fit:</span>
+                        <span>{product.fit}</span>
+                      </div>
+                    )}
+                    {product.category && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Category:</span>
+                        <span className="capitalize">{product.category}</span>
+                      </div>
+                    )}
+                    {product.subcategory && (
+                      <div className="flex justify-between py-2 border-b">
+                        <span className="font-medium">Subcategory:</span>
+                        <span>{product.subcategory}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -477,33 +601,17 @@ const ProductDetails: React.FC = () => {
                     Write Review
                   </button>
                 </div>
-                
-                <div className="space-y-3">
-                  {[
-                    { name: 'Ahmed R.', rating: 5, text: 'Excellent quality! Very comfortable and fits perfectly.' },
-                    { name: 'Fatima K.', rating: 4, text: 'Good shirt for the price. Color exactly as shown.' },
-                    { name: 'Karim M.', rating: 5, text: 'Fast delivery and great quality. Will buy again!' }
-                  ].map((review, index) => (
-                    <div key={index} className="bg-gray-50 p-3 rounded">
-                      <div className="flex items-center mb-1">
-                        <div className="flex mr-2">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star key={star} className={`w-3 h-3 ${star <= review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-                          ))}
-                        </div>
-                        <span className="text-sm font-medium">{review.name}</span>
-                      </div>
-                      <p className="text-sm text-gray-700">{review.text}</p>
-                    </div>
-                  ))}
+
+                <div className="text-center py-8 text-gray-500">
+                  <p>No reviews yet. Be the first to review this product!</p>
                 </div>
               </div>
             )}
 
             {activeTab === 'shipping' && (
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                 <div>
-                  <h4 className="font-medium mb-2">Shipping</h4>
+                  <h4 className="font-medium mb-3 text-gray-900">Shipping</h4>
                   <div className="space-y-2 text-gray-600">
                     <p>• Free delivery on orders over ৳500</p>
                     <p>• 1-3 business days in Dhaka</p>
@@ -511,7 +619,7 @@ const ProductDetails: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <h4 className="font-medium mb-2">Returns</h4>
+                  <h4 className="font-medium mb-3 text-gray-900">Returns</h4>
                   <div className="space-y-2 text-gray-600">
                     <p>• 7 days easy returns</p>
                     <p>• Free return pickup</p>
