@@ -10,12 +10,10 @@ import {
   Menu, 
   X, 
   ChevronDown,
-  UserCheck,
-  Baby,
-  Sparkles,
-  Tag,
-  Shirt
+  LogOut,
+  UserCircle
 } from 'lucide-react'
+import { useAuth } from '../Provider/Authcontext'
 
 interface NavItem {
   name: string
@@ -28,10 +26,13 @@ interface NavItem {
 }
 
 const NavBar: React.FC = () => {
+  const { user, logout } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const userMenuRef = useRef<HTMLDivElement>(null)
 
   const navItems: NavItem[] = [
     {
@@ -42,71 +43,37 @@ const NavBar: React.FC = () => {
           src="https://i.ibb.co.com/wZ8hVFvD/dhoti.png" 
           alt="Lungi" 
           className="w-4 h-4"
-          onError={(e) => {
-            // Fallback to text if image fails
-            e.currentTarget.style.display = 'none'
-            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-blue-600">L</span></div>')
-          }}
         />
       ),
-      color: '#3b82f6', // Blue
-      hoverColor: '#1d4ed8', // Darker Blue
-      hasDropdown: true,
-      dropdownItems: [
-        { name: 'Print & Batik', href: '/men/shirts' },
-        { name: 'Solid', href: '/men/pants' },
-        { name: 'Stripe & Check', href: '/men/jackets' },
-        { name: 'Dobby & Jacquard', href: '/men/shoes' },
-        { name: 'Block Print', href: '/men/accessories' },
-      ]
+      color: '#3b82f6',
+      hoverColor: '#1d4ed8',
     },
     {
       name: 'Panjabi',
       href: '/panjabi',
       icon: (
         <img 
-          src="
-https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
+          src="https://i.ibb.co.com/Fk2v3fDv/indian-man.png" 
           alt="Panjabi" 
           className="w-4 h-4"
-          onError={(e) => {
-            // Fallback to text if image fails
-            e.currentTarget.style.display = 'none'
-            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
-          }}
         />
       ),
-      color: '#8b5cf6', // Purple
-      hoverColor: '#7c3aed', // Darker Purple
-      hasDropdown: true,
-      dropdownItems: [
-        { name: 'White Panjabi', href: '' },
-        { name: 'Turquoise', href: '' },
-        { name: 'Garnet', href: '' },
-        { name: 'Opal', href: '/' },
-        { name: 'Jasper', href: '/' },
-      ]
+      color: '#8b5cf6',
+      hoverColor: '#7c3aed',
     },
     {
       name: 'Others',
       href: '/others',
-      icon: <Sparkles className="h-4 w-4" />,
-      color: '#f59e0b', // Amber
-      hoverColor: '#d97706', // Darker Amber
-      hasDropdown: true,
-      dropdownItems: [
-        { name: 'Home & Living', href: '/others/home' },
-        { name: 'Beauty', href: '/others/beauty' },
-        { name: 'Sports', href: '/others/sports' },
-        { name: 'Electronics', href: '/others/electronics' },
-      ]
+      icon: <span className="h-4 w-4">✨</span>,
+      color: '#f59e0b',
+      hoverColor: '#d97706',
     },
     {
       name: 'Sale',
       href: '/sale',
-      icon: <Tag className="h-4 w-4" />,
-      color: '#ef4444', // Red
-      hoverColor: '#dc2626', // Darker Red
+      icon: <span className="h-4 w-4">🏷️</span>,
+      color: '#ef4444',
+      hoverColor: '#dc2626',
     }
   ]
 
@@ -131,35 +98,39 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
     setIsSearchOpen(!isSearchOpen)
   }
 
-  // Close mobile menu when clicking outside
+  const toggleUserMenu = () => {
+    setShowUserMenu(!showUserMenu)
+  }
+
+  const handleLogout = () => {
+    logout()
+    setShowUserMenu(false)
+  }
+
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element
+      
+      // Close mobile menu
       if (!target.closest('.mobile-menu') && !target.closest('.menu-toggle')) {
         setIsMenuOpen(false)
       }
+      
+      // Close user menu
+      if (userMenuRef.current && !userMenuRef.current.contains(target as Node)) {
+        setShowUserMenu(false)
+      }
     }
 
-    if (isMenuOpen) {
-      document.addEventListener('click', handleClickOutside)
-    }
-
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      document.removeEventListener('click', handleClickOutside)
+      document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [isMenuOpen])
+  }, [])
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50 transition-all duration-300">
-      {/* Top Bar */}
-      {/* <div className="bg-gray-50 text-gray-700 text-sm py-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center items-center">
-            <p className="animate-pulse">🚚 Free shipping on orders over $100 | ✨ 30-day returns</p>
-          </div>
-        </div>
-      </div> */}
-
       {/* Main Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -167,17 +138,7 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
           <div className="flex-shrink-0">
             <Link 
               href="/" 
-              className="text-3xl font-bold transition-colors duration-300"
-              style={{ 
-                color: '#1e40af',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.1)' 
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#3b82f6'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#1e40af'
-              }}
+              className="text-3xl font-bold transition-colors duration-300 text-blue-800 hover:text-blue-600"
             >
               LungiLok
             </Link>
@@ -195,23 +156,8 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
                 >
                   <Link
                     href={item.href}
-                    className="px-3 py-2 text-sm font-medium transition-all duration-300 flex items-center rounded-md"
-                    style={{
-                      color: item.color,
-                      backgroundColor: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = item.hoverColor
-                      e.currentTarget.style.backgroundColor = `${item.color}15`
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                      e.currentTarget.style.boxShadow = `0 4px 12px ${item.color}30`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = item.color
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                      e.currentTarget.style.transform = 'translateY(0px)'
-                      e.currentTarget.style.boxShadow = 'none'
-                    }}
+                    className="px-3 py-2 text-sm font-medium transition-all duration-300 flex items-center rounded-md hover:bg-opacity-10"
+                    style={{ color: item.color }}
                   >
                     {item.icon}
                     <span className="ml-2">{item.name}</span>
@@ -222,22 +168,12 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
 
                   {/* Dropdown Menu */}
                   {item.hasDropdown && activeDropdown === item.name && (
-                    <div className="absolute left-0 mt-1 w-48 bg-white rounded-md shadow-xl py-2 z-50 animate-in fade-in-0 zoom-in-95 duration-200 border border-gray-200">
+                    <div className="absolute left-0 mt-1 w-48 bg-white rounded-md shadow-xl py-2 z-50 border border-gray-200">
                       {item.dropdownItems?.map((dropdownItem) => (
                         <Link
                           key={dropdownItem.name}
                           href={dropdownItem.href}
-                          className="block px-4 py-2 text-sm text-gray-700 transition-all duration-200 rounded-sm mx-1"
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = `${item.color}15`
-                            e.currentTarget.style.color = item.hoverColor
-                            e.currentTarget.style.paddingLeft = '20px'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent'
-                            e.currentTarget.style.color = '#374151'
-                            e.currentTarget.style.paddingLeft = '16px'
-                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-all duration-200"
                         >
                           {dropdownItem.name}
                         </Link>
@@ -255,33 +191,19 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
             <div className="relative">
               <button
                 onClick={toggleSearch}
-                className="p-2 rounded-full transition-all duration-300"
-                style={{
-                  color: '#6b7280',
-                  backgroundColor: 'transparent'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#3b82f6'
-                  e.currentTarget.style.backgroundColor = '#3b82f615'
-                  e.currentTarget.style.transform = 'scale(1.1)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#6b7280'
-                  e.currentTarget.style.backgroundColor = 'transparent'
-                  e.currentTarget.style.transform = 'scale(1)'
-                }}
+                className="p-2 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
               >
                 <Search className="h-5 w-5" />
               </button>
               
               {/* Search Bar Overlay */}
               {isSearchOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4 animate-in fade-in-0 zoom-in-95 duration-200">
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 p-4">
                   <div className="relative">
                     <input
                       type="text"
                       placeholder="Search products..."
-                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       autoFocus
                     />
                     <button
@@ -295,54 +217,95 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
               )}
             </div>
 
-            {/* Sign In */}
-            <Link
-              href="/signin"
-              className="p-2 rounded-full transition-all duration-300 group"
-              style={{
-                color: '#6b7280',
-                backgroundColor: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#8b5cf6'
-                e.currentTarget.style.backgroundColor = '#8b5cf615'
-                e.currentTarget.style.transform = 'scale(1.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280'
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
-            >
-              <User className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-            </Link>
+            {/* User Icon with Click Dropdown */}
+            <div className="relative" ref={userMenuRef}>
+              <button
+                onClick={toggleUserMenu}
+                className="p-2 rounded-full text-gray-600 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300"
+              >
+                <User className="h-5 w-5" />
+              </button>
+
+              {/* User Dropdown Menu */}
+              {showUserMenu && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+                  {user ? (
+                    <>
+                      <div className="px-4 py-3 border-b border-gray-200">
+                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      </div>
+                      <Link
+                        href="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <UserCircle className="h-4 w-4 mr-3" />
+                        Profile
+                      </Link>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-3" />
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="h-4 w-4 mr-3" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <User className="h-4 w-4 mr-3" />
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <UserCircle className="h-4 w-4 mr-3" />
+                        Register
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <UserCircle className="h-4 w-4 mr-3" />
+                        Profile
+                      </Link>
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-3" />
+                        Dashboard
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Favorites */}
             <Link
               href="/favorites"
-              className="p-2 rounded-full transition-all duration-300 group relative"
-              style={{
-                color: '#6b7280',
-                backgroundColor: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#ec4899'
-                e.currentTarget.style.backgroundColor = '#ec489915'
-                e.currentTarget.style.transform = 'scale(1.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280'
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
+              className="p-2 rounded-full text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 relative"
             >
-              <Heart className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-              <span 
-                className="absolute -top-1 -right-1 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-pulse"
-                style={{
-                  background: 'linear-gradient(135deg, #ec4899 0%, #ef4444 100%)'
-                }}
-              >
+              <Heart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 3
               </span>
             </Link>
@@ -350,29 +313,10 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
             {/* Cart */}
             <Link
               href="/cart"
-              className="p-2 rounded-full transition-all duration-300 group relative"
-              style={{
-                color: '#6b7280',
-                backgroundColor: 'transparent'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#059669'
-                e.currentTarget.style.backgroundColor = '#05966915'
-                e.currentTarget.style.transform = 'scale(1.1)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280'
-                e.currentTarget.style.backgroundColor = 'transparent'
-                e.currentTarget.style.transform = 'scale(1)'
-              }}
+              className="p-2 rounded-full text-gray-600 hover:text-green-600 hover:bg-green-50 transition-all duration-300 relative"
             >
-              <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-              <span 
-                className="absolute -top-1 -right-1 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-pulse"
-                style={{
-                  background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)'
-                }}
-              >
+              <ShoppingCart className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 2
               </span>
             </Link>
@@ -380,150 +324,117 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* Mobile Icons */}
-            <Link 
-              href="/favorites" 
-              className="p-2 transition-colors duration-300"
-              style={{ color: '#ec4899' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#be185d'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#ec4899'
-              }}
+            {/* Mobile User Icon */}
+            <button
+              onClick={toggleUserMenu}
+              className="p-2 text-purple-600"
             >
+              <User className="h-5 w-5" />
+            </button>
+
+            {/* Mobile Icons */}
+            <Link href="/favorites" className="p-2 text-pink-600">
               <Heart className="h-5 w-5" />
             </Link>
-            <Link 
-              href="/cart" 
-              className="p-2 relative transition-colors duration-300"
-              style={{ color: '#059669' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#047857'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#059669'
-              }}
-            >
+            <Link href="/cart" className="p-2 text-green-600 relative">
               <ShoppingCart className="h-5 w-5" />
-              <span 
-                className="absolute -top-1 -right-1 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center animate-pulse"
-                style={{
-                  background: 'linear-gradient(135deg, #f97316 0%, #ef4444 100%)'
-                }}
-              >
+              <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 2
               </span>
             </Link>
             
             <button
               onClick={toggleMenu}
-              className="menu-toggle p-2 rounded-md transition-colors duration-300"
-              style={{ color: '#6b7280' }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#374151'
-                e.currentTarget.style.backgroundColor = '#f3f4f6'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280'
-                e.currentTarget.style.backgroundColor = 'transparent'
-              }}
+              className="menu-toggle p-2 rounded-md text-gray-600 hover:bg-gray-100"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
           </div>
         </div>
 
+        {/* Mobile User Dropdown Menu */}
+        {showUserMenu && (
+          <div className="md:hidden absolute right-4 top-16 w-56 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
+            {user ? (
+              <>
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+                <Link
+                  href="/profile"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <UserCircle className="h-4 w-4 mr-3" />
+                  Profile
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <ShoppingCart className="h-4 w-4 mr-3" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="h-4 w-4 mr-3" />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <User className="h-4 w-4 mr-3" />
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-green-50"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <UserCircle className="h-4 w-4 mr-3" />
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
+        )}
+
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="mobile-menu md:hidden absolute left-0 right-0 bg-white shadow-xl border-t border-gray-200 animate-in slide-in-from-top-5 duration-300">
+          <div className="mobile-menu md:hidden absolute left-0 right-0 bg-white shadow-xl border-t border-gray-200">
             <div className="px-4 py-6 space-y-4">
               {/* Mobile Search */}
               <div className="relative mb-4">
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <Search className="absolute right-3 top-2.5 h-5 w-5 text-purple-400" />
               </div>
 
               {/* Mobile Nav Items */}
               {navItems.map((item) => (
-                <div key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors duration-300"
-                    style={{
-                      color: item.color,
-                      backgroundColor: 'transparent'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = item.hoverColor
-                      e.currentTarget.style.backgroundColor = `${item.color}15`
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = item.color
-                      e.currentTarget.style.backgroundColor = 'transparent'
-                    }}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {item.icon}
-                    <span className="ml-3">{item.name}</span>
-                  </Link>
-                  
-                  {/* Mobile Dropdown Items */}
-                  {item.hasDropdown && (
-                    <div className="ml-4 mt-2 space-y-2">
-                      {item.dropdownItems?.map((dropdownItem) => (
-                        <Link
-                          key={dropdownItem.name}
-                          href={dropdownItem.href}
-                          className="block px-3 py-1 text-sm text-gray-600 hover:text-gray-800 rounded-md transition-colors duration-300"
-                          style={{
-                            backgroundColor: 'transparent',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = `${item.color}10`
-                            e.currentTarget.style.color = item.hoverColor
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = 'transparent'
-                            e.currentTarget.style.color = '#4b5563'
-                          }}
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          {dropdownItem.name}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Mobile Sign In */}
-              <div className="border-t border-gray-200 pt-4 mt-4">
                 <Link
-                  href="/signin"
-                  className="flex items-center px-3 py-2 text-base font-medium rounded-md transition-colors duration-300"
-                  style={{
-                    color: '#8b5cf6',
-                    backgroundColor: 'transparent'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#7c3aed'
-                    e.currentTarget.style.backgroundColor = '#8b5cf615'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#8b5cf6'
-                    e.currentTarget.style.backgroundColor = 'transparent'
-                  }}
+                  key={item.name}
+                  href={item.href}
+                  className="flex items-center px-3 py-2 text-base font-medium rounded-md"
+                  style={{ color: item.color }}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  <User className="h-5 w-5 mr-3" />
-                  Sign In
+                  {item.icon}
+                  <span className="ml-3">{item.name}</span>
                 </Link>
-              </div>
+              ))}
             </div>
           </div>
         )}

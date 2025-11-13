@@ -94,42 +94,42 @@ https://i.ibb.co.com/Fk2v3fDv/indian-man.png"
       itemCount: 950,
       isNew: true
     },
-    {
-      id: 3,
-      name: "Traditional Wear",
-      href: '/traditional',
-      image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=300&fit=crop',
-      icon: (
-        <img 
-          src="
-https://i.ibb.co.com/9k4BB7BX/saree.png" 
-          alt="Panjabi" 
-          className="w-8 h-8"
-          onError={(e) => {
-            // Fallback to text if image fails
-            e.currentTarget.style.display = 'none'
-            e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
-          }}
-        />
-      ),
-      color: '#06b6d4',
-      hoverColor: '#0891b2',
-      description: 'Complete collection of traditional Bengali and Islamic clothing.',
-      itemCount: 720,
-      discount: '25% OFF'
-    },
-    {
-      id: 4,
-      name: "Accessories & Others",
-      href: '/others',
-      image: 'https://i.ibb.co.com/0p73F9N4/young-indian-woman-wearing-sari-1.jpg',
-      icon: <Sparkles className="w-8 h-8" />,
-      color: '#f59e0b',
-      hoverColor: '#d97706',
-      description: 'Complete your look with our premium accessories collection.',
-      itemCount: 650,
-      isTrending: true
-    },
+//     {
+//       id: 3,
+//       name: "Traditional Wear",
+//       href: '/traditional',
+//       image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=400&h=300&fit=crop',
+//       icon: (
+//         <img 
+//           src="
+// https://i.ibb.co.com/9k4BB7BX/saree.png" 
+//           alt="Panjabi" 
+//           className="w-8 h-8"
+//           onError={(e) => {
+//             // Fallback to text if image fails
+//             e.currentTarget.style.display = 'none'
+//             e.currentTarget.insertAdjacentHTML('afterend', '<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"><span class="text-sm font-bold text-purple-600">P</span></div>')
+//           }}
+//         />
+//       ),
+//       color: '#06b6d4',
+//       hoverColor: '#0891b2',
+//       description: 'Complete collection of traditional Bengali and Islamic clothing.',
+//       itemCount: 720,
+//       discount: '25% OFF'
+//     },
+    // {
+    //   id: 4,
+    //   name: "Accessories & Others",
+    //   href: '/others',
+    //   image: 'https://i.ibb.co.com/0p73F9N4/young-indian-woman-wearing-sari-1.jpg',
+    //   icon: <Sparkles className="w-8 h-8" />,
+    //   color: '#f59e0b',
+    //   hoverColor: '#d97706',
+    //   description: 'Complete your look with our premium accessories collection.',
+    //   itemCount: 650,
+    //   isTrending: true
+    // },
     {
       id: 5,
       name: "Sale & Offers",
@@ -143,19 +143,19 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
       discount: 'UP TO 70%',
       isNew: true
     },
-    {
-      id: 6,
-      name: "New Arrivals",
-      href: '/new-arrivals',
-      image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop',
-      icon: <TrendingUp className="w-8 h-8" />,
-      color: '#10b981',
-      hoverColor: '#059669',
-      description: 'Latest fashion trends and newest collections.',
-      itemCount: 320,
-      isNew: true,
-      isTrending: true
-    }
+    // {
+    //   id: 6,
+    //   name: "New Arrivals",
+    //   href: '/new-arrivals',
+    //   image: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&h=300&fit=crop',
+    //   icon: <TrendingUp className="w-8 h-8" />,
+    //   color: '#10b981',
+    //   hoverColor: '#059669',
+    //   description: 'Latest fashion trends and newest collections.',
+    //   itemCount: 320,
+    //   isNew: true,
+    //   isTrending: true
+    // }
   ]
 
   const subCategories: { [key: string]: SubCategory[] } = {
@@ -204,8 +204,8 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
         </div>
 
         {/* Search and Controls */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-          {/* Search Bar */}
+        {/* <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
+          
           <div className="relative flex-1 max-w-md text-gray-700">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -217,33 +217,8 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
             />
           </div>
 
-          {/* View Toggle */}
-          <div className="flex items-center space-x-4">
-            <span className="text-gray-600 font-medium">View:</span>
-            <div className="flex bg-white rounded-lg p-1 shadow-sm">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded transition-all duration-300 ${
-                  viewMode === 'grid' 
-                    ? 'bg-blue-500 text-white shadow-md' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Grid3X3 className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded transition-all duration-300 ${
-                  viewMode === 'list' 
-                    ? 'bg-blue-500 text-white shadow-md' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <List className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
+          =
+        </div> */}
 
         {/* Categories Grid/List */}
         <div className={`grid gap-6 mb-12 ${
@@ -321,7 +296,7 @@ https://i.ibb.co.com/9k4BB7BX/saree.png"
                     {category.name}
                   </h3>
                   
-                  <p className="text-gray-600 mb-4 leading-relaxed">
+                  <p className="text-gray-600 mb-4 leading-relaxed h-12">
                     {category.description}
                   </p>
 
