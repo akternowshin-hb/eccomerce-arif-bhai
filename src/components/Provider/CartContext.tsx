@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useAuth } from './Authcontext'
 
 export interface CartItem {
   _id: string
@@ -28,26 +29,40 @@ const CartContext = createContext<CartContextType | undefined>(undefined)
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
+  const { user } = useAuth()
 
-  // Load cart from localStorage on mount
+  // Get cart key based on user
+  const getCartKey = () => {
+    if (user) {
+      return `cart_${user._id}`
+    }
+    return 'cart_guest'
+  }
+
+  // Load cart from localStorage on mount or when user changes
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart')
+    const cartKey = getCartKey()
+    const savedCart = localStorage.getItem(cartKey)
     if (savedCart) {
       try {
         setCart(JSON.parse(savedCart))
       } catch (error) {
         console.error('Error loading cart:', error)
+        setCart([])
       }
+    } else {
+      setCart([])
     }
     setIsLoaded(true)
-  }, [])
+  }, [user])
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('cart', JSON.stringify(cart))
+      const cartKey = getCartKey()
+      localStorage.setItem(cartKey, JSON.stringify(cart))
     }
-  }, [cart, isLoaded])
+  }, [cart, isLoaded, user])
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
     setCart((prevCart) => {

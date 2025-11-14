@@ -113,6 +113,13 @@ const ProductDetails: React.FC = () => {
         const data = await response.json()
 
         if (data.success && data.product) {
+          console.log('Product data:', data.product)
+          console.log('Product details:', {
+            material: data.product.material,
+            weight: data.product.weight,
+            care: data.product.care,
+            fit: data.product.fit
+          })
           setProduct(data.product)
           // Set default selections
           if (data.product.colors && data.product.colors.length > 0) {
@@ -160,6 +167,34 @@ const ProductDetails: React.FC = () => {
     )
 
     alert('Product added to cart!')
+  }
+
+  const handleBuyNow = () => {
+    if (!product) return
+
+    // Add to cart first
+    addToCart(
+      {
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        size: selectedSize,
+        color: selectedColor,
+        stock: product.stock
+      },
+      quantity
+    )
+
+    // Redirect to cart page
+    router.push('/cart')
+  }
+
+  const handleAskQuestion = () => {
+    // You can implement this to open a modal or redirect to contact page
+    const subject = encodeURIComponent(`Question about ${product?.name}`)
+    const body = encodeURIComponent(`Hi, I have a question about ${product?.name}:\n\n`)
+    window.location.href = `mailto:support@lungilok.com?subject=${subject}&body=${body}`
   }
 
   const nextImage = () => {
@@ -419,7 +454,7 @@ const ProductDetails: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-medium text-gray-900">Size: {selectedSize}</h3>
-                  <Link href="/size-guide" target="_blank" className="text-blue-600 text-sm hover:underline flex items-center">
+                  <Link href="/size-guide" className="text-blue-600 text-sm hover:underline flex items-center">
                     <Info className="w-3 h-3 mr-1" />
                     Size Guide
                   </Link>
@@ -482,12 +517,16 @@ const ProductDetails: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-2">
                 <button
+                  onClick={handleBuyNow}
                   className="bg-blue-600 text-white py-2.5 rounded font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
                   disabled={!product.inStock}
                 >
                   Buy Now
                 </button>
-                <button className="border border-gray-300 py-2.5 rounded font-medium hover:bg-gray-50 transition-colors">
+                <button
+                  onClick={handleAskQuestion}
+                  className="border border-gray-300 py-2.5 rounded font-medium hover:bg-gray-50 transition-colors"
+                >
                   Ask Question
                 </button>
               </div>
@@ -551,56 +590,40 @@ const ProductDetails: React.FC = () => {
               <div className="space-y-4 text-sm">
                 <div>
                   <h4 className="font-medium mb-3 text-gray-900">Details</h4>
-                  <div className="space-y-2 text-gray-600">
-                    {product.material && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Material:</span>
-                        <span>{product.material}</span>
-                      </div>
-                    )}
-                    {product.weight && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Weight:</span>
-                        <span>{product.weight}</span>
-                      </div>
-                    )}
-                    {product.care && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Care:</span>
-                        <span>{product.care}</span>
-                      </div>
-                    )}
-                    {product.fit && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Fit:</span>
-                        <span>{product.fit}</span>
-                      </div>
-                    )}
-                    {product.material && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Material:</span>
-                        <span>{product.material}</span>
-                      </div>
-                    )}
-                    {product.weight && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Weight:</span>
-                        <span>{product.weight}</span>
-                      </div>
-                    )}
-                    {product.care && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Care Instructions:</span>
-                        <span>{product.care}</span>
-                      </div>
-                    )}
-                    {product.fit && (
-                      <div className="flex justify-between py-2 border-b">
-                        <span className="font-medium">Fit:</span>
-                        <span>{product.fit}</span>
-                      </div>
-                    )}
-                  </div>
+                  {!product.material && !product.weight && !product.care && !product.fit ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No detailed specifications available for this product.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
+                      {/* First Row */}
+                      {product.material && (
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="font-medium text-gray-700 block mb-1">Material</span>
+                          <span className="text-gray-900">{product.material}</span>
+                        </div>
+                      )}
+                      {product.weight && (
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="font-medium text-gray-700 block mb-1">Weight</span>
+                          <span className="text-gray-900">{product.weight}</span>
+                        </div>
+                      )}
+                      {/* Second Row */}
+                      {product.care && (
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="font-medium text-gray-700 block mb-1">Care Instructions</span>
+                          <span className="text-gray-900">{product.care}</span>
+                        </div>
+                      )}
+                      {product.fit && (
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                          <span className="font-medium text-gray-700 block mb-1">Fit</span>
+                          <span className="text-gray-900">{product.fit}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}

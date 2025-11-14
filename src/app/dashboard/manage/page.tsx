@@ -12,6 +12,7 @@ import {
   Plus
 } from 'lucide-react'
 import Link from 'next/link'
+import toast from 'react-hot-toast'
 
 interface Product {
   _id?: string
@@ -32,8 +33,8 @@ interface Product {
   weight?: string
   care?: string
   fit?: string
-  rating?: number
-  numReviews?: number
+  rating?: number | string
+  numReviews?: number | string
   isNew: boolean
   isBestseller: boolean
   featured: boolean
@@ -59,6 +60,7 @@ const ManageProductsPage: React.FC = () => {
   const [newColorInput, setNewColorInput] = useState('')
   const [newSizeInput, setNewSizeInput] = useState('')
   const [availableColors, setAvailableColors] = useState<string[]>(PREDEFINED_COLORS)
+  const [priceError, setPriceError] = useState('')
 
   const [formData, setFormData] = useState<Product>({
     name: '',
@@ -77,8 +79,8 @@ const ManageProductsPage: React.FC = () => {
     weight: '',
     care: '',
     fit: '',
-    rating: 0,
-    numReviews: 0,
+    rating: '',
+    numReviews: '',
     isNew: false,
     isBestseller: false,
     featured: false
@@ -126,8 +128,8 @@ const ManageProductsPage: React.FC = () => {
           weight: product.weight || '',
           care: product.care || '',
           fit: product.fit || '',
-          rating: product.rating || 0,
-          numReviews: product.numReviews || 0,
+          rating: product.rating || '',
+          numReviews: product.numReviews || '',
           isNew: product.isNew || false,
           isBestseller: product.isBestseller || false,
           featured: product.featured || false
@@ -152,10 +154,98 @@ const ManageProductsPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching product:', error)
-      alert('Failed to fetch product details. Please try again.')
+      toast.error('Failed to fetch product details. Please try again.')
       router.push('/dashboard/products')
     } finally {
       setIsFetchingProduct(false)
+    }
+  }
+
+  // Real-time validation for number inputs
+  const handleNumberInput = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string, max?: number) => {
+    let value = e.target.value
+
+    // Allow empty string
+    if (value === '') {
+      setFormData(prev => ({ ...prev, [fieldName]: value }))
+      return
+    }
+
+    // Only allow numbers and one decimal point
+    if (!/^\d*\.?\d*$/.test(value)) {
+      return // Don't update if invalid
+    }
+
+    // For rating, check max value (5)
+    if (fieldName === 'rating') {
+      const numValue = parseFloat(value)
+      if (numValue > 5) {
+        toast.error('Rating cannot be more than 5')
+        return
+      }
+    }
+
+    setFormData(prev => ({ ...prev, [fieldName]: value }))
+  }
+
+// Validate price relationship with explicit values
+  const validatePrices = (currentPrice?: string, currentOriginalPrice?: string) => {
+    const priceStr = String(currentPrice !== undefined ? currentPrice : formData.price || '').trim()
+    const originalPriceStr = String(currentOriginalPrice !== undefined ? currentOriginalPrice : formData.originalPrice || '').trim()
+
+    // If original price is not provided, no validation needed
+    if (!originalPriceStr || originalPriceStr === '') {
+      setPriceError('')
+      return true
+    }
+
+    // If selling price is not provided, no validation needed
+    if (!priceStr || priceStr === '') {
+      setPriceError('')
+      return true
+    }
+
+    const sellingPrice = parseFloat(priceStr)
+    const originalPrice = parseFloat(originalPriceStr)
+
+    // Check if values are valid numbers
+    if (isNaN(sellingPrice) || isNaN(originalPrice)) {
+      setPriceError('')
+      return true
+    }
+
+    // If either price is 0 or negative, no validation
+    if (sellingPrice <= 0 || originalPrice <= 0) {
+      setPriceError('')
+      return true
+    }
+
+    // Validation - Selling price must be LESS than original price
+    if (sellingPrice >= originalPrice) {
+      setPriceError('Selling price must be less than original price!')
+      return false
+    }
+
+    // All good - clear error
+    setPriceError('')
+    return true
+  }
+
+  // Handle price input change
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'price' | 'originalPrice') => {
+    const newValue = e.target.value
+    
+    // Update the form data
+    setFormData(prev => ({
+      ...prev,
+      [fieldName]: newValue
+    }))
+    
+    // Validate with the new value immediately
+    if (fieldName === 'price') {
+      validatePrices(newValue, formData.originalPrice as string)
+    } else {
+      validatePrices(formData.price as string, newValue)
     }
   }
 
@@ -188,9 +278,9 @@ const ManageProductsPage: React.FC = () => {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
 
-        // Check file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          alert(`${file.name} is too large. Maximum size is 5MB.`)
+        // Check file size (max 60MB for high quality images)
+        if (file.size > 60 * 1024 * 1024) {
+          toast.error(`${file.name} is too large. Maximum size is 60MB.`)
           continue
         }
 
@@ -207,7 +297,7 @@ const ManageProductsPage: React.FC = () => {
       }))
     } catch (error) {
       console.error('Error processing images:', error)
-      alert('Failed to process some images')
+      toast.error('Failed to process some images')
     } finally {
       setUploadingImages(false)
     }
@@ -285,39 +375,84 @@ const ManageProductsPage: React.FC = () => {
 
     // Validation
     if (!formData.name.trim()) {
-      alert('Product name is required')
+      toast.error('Product name is required')
       return
     }
 
     if (!formData.description.trim()) {
-      alert('Product description is required')
+      toast.error('Product description is required')
       return
     }
 
     if (!formData.price || parseFloat(formData.price as string) <= 0) {
-      alert('Valid price is required')
+      toast.error('Valid price is required')
       return
     }
 
     if (!formData.stock || parseInt(formData.stock as string) < 0) {
-      alert('Valid stock quantity is required')
+      toast.error('Valid stock quantity is required')
       return
     }
 
     if (formData.images.length === 0) {
-      alert('At least one product image is required')
+      toast.error('At least one product image is required')
       return
+    }
+
+    // Validate rating (must be between 0 and 5)
+    if (formData.rating !== undefined && formData.rating !== null && formData.rating !== '') {
+      const rating = parseFloat(formData.rating as any)
+      if (rating < 0 || rating > 5) {
+        toast.error('Rating must be between 0 and 5')
+        return
+      }
+    }
+
+    // Validate num reviews (must be non-negative)
+    if (formData.numReviews !== undefined && formData.numReviews !== null && formData.numReviews !== '') {
+      const numReviews = parseInt(formData.numReviews as any)
+      if (numReviews < 0) {
+        toast.error('Number of reviews cannot be negative')
+        return
+      }
+    }
+
+    // Validate price relationship if original price is provided
+    if (formData.originalPrice) {
+      const originalPrice = parseFloat(formData.originalPrice as string)
+      const sellingPrice = parseFloat(formData.price as string)
+      if (sellingPrice >= originalPrice) {
+        toast.error('Selling price must be less than original price')
+        return
+      }
     }
 
     setIsLoading(true)
 
     try {
+      // FIXED: Properly convert all numeric fields and handle optional fields
       const submitData = {
-        ...formData,
+        name: formData.name.trim(),
+        description: formData.description.trim(),
         price: parseFloat(formData.price as string),
         originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice as string) : undefined,
+        category: formData.category,
+        subcategory: formData.subcategory?.trim() || undefined,
+        brand: formData.brand?.trim() || undefined,
         stock: parseInt(formData.stock as string),
-        inStock: parseInt(formData.stock as string) > 0
+        inStock: parseInt(formData.stock as string) > 0,
+        images: formData.images,
+        sizes: formData.sizes,
+        colors: formData.colors,
+        material: formData.material?.trim() || undefined,
+        weight: formData.weight?.trim() || undefined,
+        care: formData.care?.trim() || undefined,
+        fit: formData.fit?.trim() || undefined,
+        rating: formData.rating ? parseFloat(formData.rating as string) : undefined,
+        numReviews: formData.numReviews ? parseInt(formData.numReviews as string) : undefined,
+        isNew: formData.isNew,
+        isBestseller: formData.isBestseller,
+        featured: formData.featured
       }
 
       const url = action === 'edit' ? `/api/products/${productId}` : '/api/products'
@@ -338,14 +473,14 @@ const ManageProductsPage: React.FC = () => {
       console.log('Response:', data)
 
       if (response.ok && data.success) {
-        alert(action === 'edit' ? 'Product updated successfully!' : 'Product created successfully!')
-        router.push('/dashboard/products')
+        toast.success(action === 'edit' ? 'Product updated successfully!' : 'Product created successfully!')
+        setTimeout(() => router.push('/dashboard/products'), 1000)
       } else {
         throw new Error(data.message || 'Failed to save product')
       }
     } catch (error) {
       console.error('Error saving product:', error)
-      alert(error instanceof Error ? error.message : 'Failed to save product. Please try again.')
+      toast.error(error instanceof Error ? error.message : 'Failed to save product. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -481,18 +616,19 @@ const ManageProductsPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price (৳) *
+                  Selling Price (৳) *
                 </label>
                 <input
                   type="text"
                   inputMode="decimal"
                   name="price"
                   value={formData.price}
-                  onChange={handleInputChange}
+                  onChange={(e) => handlePriceChange(e, 'price')}
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter price"
+                  placeholder="e.g., 3000"
                 />
+                <p className="text-xs text-gray-500 mt-1">The price customers will pay</p>
               </div>
 
               <div>
@@ -504,10 +640,13 @@ const ManageProductsPage: React.FC = () => {
                   inputMode="decimal"
                   name="originalPrice"
                   value={formData.originalPrice}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="For showing discount"
+                  onChange={(e) => handlePriceChange(e, 'originalPrice')}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                    priceError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'
+                  }`}
+                  placeholder="e.g., 3200"
                 />
+                <p className="text-xs text-gray-500 mt-1">Must be higher than selling price to show discount</p>
               </div>
             </div>
           </div>
@@ -525,7 +664,7 @@ const ManageProductsPage: React.FC = () => {
                 inputMode="numeric"
                 name="stock"
                 value={formData.stock}
-                onChange={handleInputChange}
+                onChange={(e) => handleNumberInput(e, 'stock')}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter stock quantity"
@@ -610,14 +749,11 @@ const ManageProductsPage: React.FC = () => {
                   inputMode="decimal"
                   name="rating"
                   value={formData.rating || ''}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleNumberInput(e, 'rating')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., 4.5"
-                  min="0"
-                  max="5"
-                  step="0.1"
                 />
-                <p className="text-xs text-gray-500 mt-1">Enter a rating between 0 and 5</p>
+                <p className="text-xs text-gray-500 mt-1">Enter a value between 0 and 5 (decimals allowed)</p>
               </div>
 
               <div>
@@ -629,7 +765,7 @@ const ManageProductsPage: React.FC = () => {
                   inputMode="numeric"
                   name="numReviews"
                   value={formData.numReviews || ''}
-                  onChange={handleInputChange}
+                  onChange={(e) => handleNumberInput(e, 'numReviews')}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="e.g., 125"
                 />
@@ -759,29 +895,62 @@ const ManageProductsPage: React.FC = () => {
           <div className="space-y-4 border-t pt-6">
             <h3 className="text-lg font-semibold text-gray-900">Sizes</h3>
 
-            {/* Add Size Input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newSizeInput}
-                onChange={(e) => setNewSizeInput(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    addSize()
-                  }
-                }}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Add size (e.g., XL, 42, Large)"
-              />
-              <button
-                type="button"
-                onClick={addSize}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                Add
-              </button>
+            {/* Predefined Sizes - Quick Select */}
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Click to select common sizes:</p>
+              <div className="flex flex-wrap gap-2">
+                {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => {
+                      if (!formData.sizes.includes(size)) {
+                        setFormData(prev => ({
+                          ...prev,
+                          sizes: [...prev.sizes, size]
+                        }))
+                      } else {
+                        removeSize(size)
+                      }
+                    }}
+                    className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                      formData.sizes.includes(size)
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Add Custom Size Input */}
+            <div>
+              <p className="text-sm text-gray-600 mb-2">Or add custom size:</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newSizeInput}
+                  onChange={(e) => setNewSizeInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addSize()
+                    }
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Add custom size (e.g., 3XL, Free Size)"
+                />
+                <button
+                  type="button"
+                  onClick={addSize}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add
+                </button>
+              </div>
             </div>
 
             {/* Display Selected Sizes as Tags */}

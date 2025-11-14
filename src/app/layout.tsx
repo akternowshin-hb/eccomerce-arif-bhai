@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/Provider/Authcontext";
 import { CartProvider } from "@/components/Provider/CartContext";
 import { FavoritesProvider } from "@/components/Provider/FavoritesContext";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import { Toaster } from "react-hot-toast";
 
 
 // Load Geist Sans locally
@@ -41,6 +42,30 @@ export default function RootLayout({
           <FavoritesProvider>
             <CartProvider>
               <ConditionalLayout>{children}</ConditionalLayout>
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    background: '#363636',
+                    color: '#fff',
+                  },
+                  success: {
+                    duration: 3000,
+                    iconTheme: {
+                      primary: '#10B981',
+                      secondary: '#fff',
+                    },
+                  },
+                  error: {
+                    duration: 4000,
+                    iconTheme: {
+                      primary: '#EF4444',
+                      secondary: '#fff',
+                    },
+                  },
+                }}
+              />
             </CartProvider>
           </FavoritesProvider>
         </AuthProvider>

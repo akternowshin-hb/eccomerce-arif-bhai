@@ -7,12 +7,12 @@ import mongoose from 'mongoose'
 // GET - Fetch single product by ID
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
-    
-    const { id } = params
+
+    const { id } = await params
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -51,12 +51,12 @@ export async function GET(
 // PUT - Update product by ID
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
-    
-    const { id } = params
+
+    const { id } = await params
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -131,12 +131,12 @@ export async function PUT(
 // DELETE - Delete product by ID
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB()
-    
-    const { id } = params
+
+    const { id } = await params
 
     // Validate MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {

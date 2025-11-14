@@ -190,15 +190,15 @@ const NavBar: React.FC = () => {
           </div>
 
           {/* Desktop Icons */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-4 text-gray-800">
             {/* Search */}
             <div className="relative">
-              <button
+              {/* <button
                 onClick={toggleSearch}
                 className="p-2 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-300"
               >
                 <Search className="h-5 w-5" />
-              </button>
+              </button> */}
               
               {/* Search Bar Overlay */}
               {isSearchOpen && (
@@ -236,7 +236,7 @@ const NavBar: React.FC = () => {
                   {user ? (
                     <>
                       <div className="px-4 py-3 border-b border-gray-200">
-                        <p className="text-sm font-medium text-gray-900">{user.fullName}</p>
+                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
                         <p className="text-xs text-gray-500 truncate">{user.email}</p>
                       </div>
                       <Link
@@ -247,14 +247,16 @@ const NavBar: React.FC = () => {
                         <UserCircle className="h-4 w-4 mr-3" />
                         Profile
                       </Link>
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-3" />
-                        Dashboard
-                      </Link>
+                      {user.isAdmin && (
+                        <Link
+                          href="/dashboard"
+                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <ShoppingCart className="h-4 w-4 mr-3" />
+                          Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
@@ -280,22 +282,6 @@ const NavBar: React.FC = () => {
                       >
                         <UserCircle className="h-4 w-4 mr-3" />
                         Register
-                      </Link>
-                      <Link
-                        href="/profile"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <UserCircle className="h-4 w-4 mr-3" />
-                        Profile
-                      </Link>
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-3" />
-                        Dashboard
                       </Link>
                     </>
                   )}

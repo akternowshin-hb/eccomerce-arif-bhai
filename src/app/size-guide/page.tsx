@@ -1,22 +1,24 @@
 'use client'
 
 import React from 'react'
-import { Ruler, ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
+import { Ruler, ArrowLeft, Link } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const SizeGuidePage: React.FC = () => {
+  const router = useRouter()
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4"
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
+            Back
+          </button>
           <div className="flex items-center gap-3 mb-2">
             <Ruler className="w-8 h-8 text-blue-600" />
             <h1 className="text-3xl font-bold text-gray-900">Size Guide</h1>
