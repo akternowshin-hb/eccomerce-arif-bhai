@@ -7,8 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 LungiLok is a Next.js 15 e-commerce application for selling traditional clothing (Lungi and Panjabi). The stack includes:
 - Next.js 15 with App Router
 - TypeScript
-- MongoDB with Mongoose ODM
-- Firebase Authentication (email/password, Google, Facebook)
+- MongoDB with Mongoose ODM (handles authentication, users, products, orders)
 - Tailwind CSS v4
 - React 19
 
@@ -30,19 +29,18 @@ npm run lint            # Run Next.js linter
 ## Architecture
 
 ### Authentication System
-The app uses a dual authentication system:
-- **Firebase Auth**: Handles user authentication (email/password, Google, Facebook)
-- **Firestore**: Stores extended user profile data (fullName, phone)
-- **AuthProvider**: Context provider at `src/components/Provider/Authcontext.tsx` manages auth state globally
+The app uses MongoDB for all authentication and user management:
+- **MongoDB User Model**: Handles user authentication with bcrypt password hashing
+- **Auth API Routes**: `/api/auth/login` and `/api/auth/register` for email/password authentication
+- **AuthProvider**: Context provider at `src/components/Provider/Authcontext.tsx` manages auth state globally using localStorage
 - **ProtectedRoute**: Component at `src/components/Route/ProtectedRoute.tsx` guards authenticated routes
 
-Firebase configuration is in `src/firebase/firebase.ts` with popup-first authentication that falls back to redirect for blocked popups.
-
 ### Database Architecture
-- **MongoDB**: Primary database for product catalog
-- **Firestore**: User profile storage
+- **MongoDB**: Single database for all data (users, products, orders)
 - Connection pooling implemented in `src/lib/mongodb.ts` with cached connections for serverless optimization
+- User model at `src/models/User.ts` with fields: name, email, phone, password (hashed), isAdmin
 - Product model at `src/models/Product.ts` with comprehensive schema including categories (lungi, panjabi, traditional, others)
+- Order model at `src/models/Order.ts` with support for COD (Cash on Delivery) payments
 
 ### Route Structure
 The app uses Next.js App Router with route groups:
@@ -58,10 +56,21 @@ The app uses Next.js App Router with route groups:
 - All other routes: Includes NavBar and Footer
 
 ### API Routes
-Product API at `src/app/api/products/route.ts`:
+**Product API** at `src/app/api/products/route.ts`:
 - `GET /api/products` - Fetch products with optional filters (category, search, featured, onSale)
 - `POST /api/products` - Create new product (requires name, description, price, category)
 - Individual product routes at `/api/products/[id]/`
+
+**Order API** at `src/app/api/orders/route.ts`:
+- `GET /api/orders` - Fetch orders with optional filters (userId, status, paymentStatus)
+- `POST /api/orders` - Create new order with COD support, auto-updates product stock and user phone
+- Individual order routes at `/api/orders/[id]/`
+
+**Reports API** at `src/app/api/reports/route.ts`:
+- `GET /api/reports?type=customers` - Customer reports with order statistics
+- `GET /api/reports?type=orders` - Order reports with payment and delivery info
+- `GET /api/reports?type=delivery` - Delivery reports with timing metrics
+- Supports date filtering with `startDate` and `endDate` query params
 
 ### Product Schema
 Products include:
@@ -75,7 +84,6 @@ Products include:
 
 Required in `.env.local`:
 - `MONGODB_URI` - MongoDB connection string (defaults to `mongodb://localhost:27017/lungilok`)
-- Firebase credentials are hardcoded in `src/firebase/firebase.ts` (should be moved to env vars)
 
 ## TypeScript Configuration
 
@@ -84,7 +92,7 @@ Path alias `@/*` maps to `src/*` for imports. Node version required: 20.x (speci
 ## Next.js Configuration
 
 Custom headers in `next.config.ts` for CORS:
-- `Cross-Origin-Opener-Policy: same-origin-allow-popups` (enables popup-based OAuth)
+- `Cross-Origin-Opener-Policy: same-origin-allow-popups`
 - `Cross-Origin-Embedder-Policy: unsafe-none`
 
 ## Key Components
@@ -103,5 +111,13 @@ Admin dashboard at `/dashboard` includes:
 - Profile management at `/dashboard/profile`
 - Products list at `/dashboard/products`
 - Product editor at `/dashboard/manage`
+- Reports page at `/dashboard/reports` with customer, order, and delivery reports (CSV download)
 
 Protected by ProtectedRoute - requires authentication to access.
+
+## E-commerce Features
+
+- **Shopping Cart**: Client-side cart management with CartContext provider
+- **Checkout**: COD (Cash on Delivery) payment support with shipping address collection
+- **Orders**: Order tracking with status (Pending, Processing, Shipped, Delivered, Cancelled)
+- **Reports**: Admin reports for customers, orders, and deliveries with date filtering and CSV export

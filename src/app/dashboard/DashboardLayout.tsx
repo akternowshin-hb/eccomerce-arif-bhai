@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Bell,
   Search,
-  User
+  User,
+  FileText
 } from 'lucide-react'
 import { useAuth } from '@/components/Provider/Authcontext'
 
@@ -52,6 +53,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       name: 'Manage Products',
       href: '/dashboard/manage',
       icon: <ShoppingCart className="w-5 h-5" />
+    },
+    {
+      name: 'Reports',
+      href: '/dashboard/reports',
+      icon: <FileText className="w-5 h-5" />
     },
     {
       name: 'Profile',
